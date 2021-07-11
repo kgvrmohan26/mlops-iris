@@ -23,7 +23,7 @@ class QueryIn(BaseModel):
 # class which is returned in the response
 class QueryOut(BaseModel):
     flower_class: str
-    Time_Stamp= datetime.datetime.now().strftime("%m/%d/%Y, %H:%M") # Adding timestamp to response
+    Time_Stamp= datetime.datetime.now().strftime("%m/%d/%Y, %H:%M")   # Adding timestamp to response
 
 # class which is expected in the payload while re-training
 class FeedbackIn(BaseModel):

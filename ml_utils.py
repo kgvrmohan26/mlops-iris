@@ -35,8 +35,8 @@ def load_model():
     acc_Lreg = accuracy_score(y_test, clf_Lreg.predict(X_test))  # Linear classifier accuracy
     print(f"Model GaussianNB classifier trained with accuracy: {round(acc, 3)}")
     print(f"Model LogisticRegression classifier trained with accuracy: {round(acc_Lreg, 3)}")
-    if (acc < acc_Lreg): # if LogisticRegression accuracy better than GaussianNB
-       clf=clf_Lreg # Assign LogisticRegression classifier to clf
+    if (acc < acc_Lreg):  # if LogisticRegression accuracy better than GaussianNB
+       clf=clf_Lreg  # Assign LogisticRegression classifier to clf
        print ('LogisticRegression got better accuracy')
        print('classifier used for prediction is',clf)
     else: #if GaussianNB is better/equal than/to LogisticRegression
