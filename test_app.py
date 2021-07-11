@@ -27,7 +27,7 @@ def test_pred_virginica():
         assert response.json() == {"flower_class": "Iris Virginica","Time_Stamp":datetime.datetime.now().strftime("%m/%d/%Y, %H:%M")}
        
 def test_pred_setosa():
-   # defining a sample payload for the testcase
+  # defining a sample payload for the testcase
     payload = {
         "sepal_length": 5.1,
         "sepal_width": 3.5,
@@ -42,7 +42,7 @@ def test_pred_setosa():
 
 
 def test_pred_Versicolour():
-   # defining a sample payload for the testcase
+  # defining a sample payload for the testcase
     payload = {
         "sepal_length": 7.0,
         "sepal_width": 3.2,
