@@ -3,10 +3,12 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from ml_utils import load_model, predict, retrain
 from typing import List
-import datetime;
+import sys
+sys.setrecursionlimit(10000)
+from fastapi.responses import FileResponse
 
 # defining the main app
-app = FastAPI(title="Iris Predictor", docs_url="/")
+app = FastAPI(title="Cred Scoring", docs_url="/")
 
 # calling the load_model during startup.
 # this will train the model and keep it loaded for prediction.
@@ -14,24 +16,58 @@ app.add_event_handler("startup", load_model)
 
 # class which is expected in the payload
 class QueryIn(BaseModel):
-    sepal_length: float
-    sepal_width: float
-    petal_length: float
-    petal_width: float
+    p1: str= 'A11'
+    p2: int= 6
+    p3: str='A34'
+    p4: str='A43'
+    p5: int=1169
+    p6: str='A65'
+    p7: str='A75'
+    p8: int=4
+    p9: str='A93'
+    p10: str='A101'
+    p11: int=4
+    p12: str='A121'
+    p13: int=67
+    p14: str='A143'
+    p15: str='A152'
+    p16: int=2
+    p17: str='A173'
+    p18: int=1
+    p19: str='A192'
+    p20: str='A201'
+    
+                
 
 
 # class which is returned in the response
 class QueryOut(BaseModel):
-    flower_class: str
-    Time_Stamp= datetime.datetime.now().strftime("%m/%d/%Y, %H:%M")   # Adding timestamp to response
+    loan:str
+    
 
 # class which is expected in the payload while re-training
 class FeedbackIn(BaseModel):
-    sepal_length: float
-    sepal_width: float
-    petal_length: float
-    petal_width: float
-    flower_class: str
+    p1: str= 'A11'
+    p2: int= 6
+    p3: str='A34'
+    p4: str='A43'
+    p5: int=1169
+    p6: str='A65'
+    p7: str='A75'
+    p8: int=4
+    p9: str='A93'
+    p10: str='A101'
+    p11: int=4
+    p12: str='A121'
+    p13: int=67
+    p14: str='A143'
+    p15: str='A152'
+    p16: int=2
+    p17: str='A173'
+    p18: int=1
+    p19: str='A192'
+    p20: str='A201'
+    loan:str='Bad'
 
 # Route definitions
 @app.get("/ping")
@@ -40,13 +76,21 @@ def ping():
     return {"ping": "pong"}
 
 
-@app.post("/predict_flower", response_model=QueryOut, status_code=200)
+@app.post("/cred_scoring", response_model=QueryOut, status_code=200)
 # Route to do the prediction using the ML model defined.
 # Payload: QueryIn containing the parameters
 # Response: QueryOut containing the flower_class predicted (200)
-def predict_flower(query_data: QueryIn):
-    output = {"flower_class": predict(query_data)}
+def cred_scoring(query_data: QueryIn):
+    output = {"loan": predict(query_data)}
     return output
+
+@app.post("/explain", response_model=QueryOut, status_code=200)
+# Route to do the prediction using the ML model defined.
+# Payload: QueryIn containing the parameters
+# Response: QueryOut containing the flower_class predicted (200)
+def explain():
+    some_file_path = "explainable_AI_starter.html"
+    return FileResponse(some_file_path,filename='explain.html')
 
 @app.post("/feedback_loop", status_code=200)
 # Route to further train the model based on user input in form of feedback loop
@@ -61,3 +105,4 @@ def feedback_loop(data: List[FeedbackIn]):
 if __name__ == "__main__":
     # Uvicorn is used to run the server and listen for incoming API requests on 0.0.0.0:8888
     uvicorn.run("main:app", host="0.0.0.0", port=8888, reload=True)
+

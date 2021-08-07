@@ -1,6 +1,5 @@
 from fastapi.testclient import TestClient
 from main import app
-import datetime;
 
 # test to check the correct functioning of the /ping route
 def test_ping():
@@ -12,46 +11,33 @@ def test_ping():
 
 
 # test to check if Iris Virginica is classified correctly
-def test_pred_virginica():
+def test_cred_scoring():
     # defining a sample payload for the testcase
     payload = {
-        "sepal_length": 3,
-        "sepal_width": 5,
-        "petal_length": 3.2,
-        "petal_width": 4.4,
-    }
+  "p1": "A11",
+  "p2": 6,
+  "p3": "A34",
+  "p4": "A43",
+  "p5": 1169,
+  "p6": "A65",
+  "p7": "A75",
+  "p8": 4,
+  "p9": "A93",
+  "p10": "A101",
+  "p11": 4,
+  "p12": "A121",
+  "p13": 67,
+  "p14": "A143",
+  "p15": "A152",
+  "p16": 2,
+  "p17": "A173",
+  "p18": 1,
+  "p19": "A192",
+  "p20": "A201"
+}
     with TestClient(app) as client:
-        response = client.post("/predict_flower", json=payload)
+        response = client.post("/cred_scoring", json=payload)
         # asserting the correct response is received
         assert response.status_code == 200
-        assert response.json() == {"flower_class": "Iris Virginica","Time_Stamp":datetime.datetime.now().strftime("%m/%d/%Y, %H:%M")}
+        assert response.json() == {"loan": "Bad"}
        
-def test_pred_setosa():
-  # defining a sample payload for the testcase
-    payload = {
-        "sepal_length": 5.1,
-        "sepal_width": 3.5,
-        "petal_length": 1.4,
-        "petal_width": 0.2,
-    }
-    with TestClient(app) as client:
-        response = client.post("/predict_flower", json=payload)
-        # asserting the correct response is received
-        assert response.status_code == 200
-        assert response.json() == {"flower_class": "Iris Setosa","Time_Stamp":datetime.datetime.now().strftime("%m/%d/%Y, %H:%M")}
-
-
-def test_pred_Versicolour():
-  # defining a sample payload for the testcase
-    payload = {
-        "sepal_length": 7.0,
-        "sepal_width": 3.2,
-        "petal_length": 4.7,
-        "petal_width": 1.4,
-    }
-    with TestClient(app) as client:
-        response = client.post("/predict_flower", json=payload)
-        # asserting the correct response is received
-        assert response.status_code == 200
-        assert response.json() == {"flower_class": "Iris Versicolour","Time_Stamp":datetime.datetime.now().strftime("%m/%d/%Y, %H:%M")}
-

@@ -1,54 +1,58 @@
-from sklearn import datasets
+#rom sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LogisticRegression
-
-# define a Gaussain NB classifier
-clf = GaussianNB()
-
-#define a Linear classifier
-clf_Lreg = LogisticRegression(penalty='l2',C=1.0, max_iter=10000)
+from pandas import read_csv
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
+from sklearn.pipeline import Pipeline
+import pandas as pd
+import subprocess
 
 
 # define the class encodings and reverse encodings
-classes = {0: "Iris Setosa", 1: "Iris Versicolour", 2: "Iris Virginica"}
+classes = {0: "Bad", 1: "Good"}
 r_classes = {y: x for x, y in classes.items()}
 
 # function to train and load the model during startup
 def load_model():
+    #Load data set from https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data
+    df=read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data",sep=" ",header=None)
+    y=df[20]
+    X=df.drop(20,axis=1)
+    # select categorical and numerical features
+    cat_ix=X.select_dtypes(include=['object','bool']).columns
+    ct=ColumnTransformer([('o',OneHotEncoder(),cat_ix)],remainder='passthrough')
+    clf = GaussianNB()
+    global pipe
+    pipe=Pipeline([("ct",ct),("clf",clf)])
     
-    global clf
-    global clf_Lreg
+    #Label encode the target variable to have  the classes 0 and 1 
+    y=LabelEncoder().fit_transform(y)
     
-    # load the dataset from the official sklearn datasets
-    X, y = datasets.load_iris(return_X_y=True)
-
-    # do the test-train split and train the model
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-    clf.fit(X_train, y_train) # Fit Gaussain classifier
+    #Do the Split and train the model
+    X_train, X_test, y_train, y_test= train_test_split(X ,y,test_size=0.2)
+    pipe.fit( X_train,y_train)
     
-    clf_Lreg.fit(X_train, y_train) # Fit Linear classifier
-
-    # calculate the print the accuracy score
-    acc = accuracy_score(y_test, clf.predict(X_test))  # Gaussain classifier accuracy
-    acc_Lreg = accuracy_score(y_test, clf_Lreg.predict(X_test))  # Linear classifier accuracy
-    print(f"Model GaussianNB classifier trained with accuracy: {round(acc, 3)}")
-    print(f"Model LogisticRegression classifier trained with accuracy: {round(acc_Lreg, 3)}")
-    if (acc < acc_Lreg):  # if LogisticRegression accuracy better than GaussianNB
-       clf=clf_Lreg  # Assign LogisticRegression classifier to clf
-       print ('LogisticRegression got better accuracy')
-       print('classifier used for prediction is',clf)
-    else: #if GaussianNB is better/equal than/to LogisticRegression
-       print ('GaussianNB got better/equal accuracy')
-       print('classifier used for prediction is',clf)# clf contain GaussianNB classifier as assigned initially
+    #calculate and print accuracy_score
+    acc=accuracy_score(y_test,pipe.predict(X_test))
+    print(f"Model trained with accuracy:{round(acc,3)}")
+    
+    #Generating Explainability File
+    #subprocess.call(["jupyter","nbconvert","--to","notebook","--execute","explainable_AI_starter.ipynb"])
+    #subprocess.call(["jupyter","nbconvert","explainable_AI_starter.ipynb","--no-input","--to","html"])
+    print ("Explainability File Generated")
+    
     
 
 
 # function to predict the flower using the model
 def predict(query_data):
     x = list(query_data.dict().values())
-    prediction = clf.predict([x])[0]
+    X=pd.DataFrame([x])
+    global pipe
+    prediction = pipe.predict(X)[0]
     print(f"Model prediction: {classes[prediction]}")
     return (classes[prediction])
 
@@ -56,7 +60,11 @@ def predict(query_data):
 def retrain(data):
     # pull out the relevant X and y from the FeedbackIn object
     X = [list(d.dict().values())[:-1] for d in data]
-    y = [r_classes[d.flower_class] for d in data]
+    y = [r_classes[d.loan] for d in data]
 
     # fit the classifier again based on the new data obtained
-    clf.fit(X, y)
+    global pipe
+    pipe.fit(X,y)
+    
+
+
